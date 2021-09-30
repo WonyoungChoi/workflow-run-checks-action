@@ -1,0 +1,34 @@
+name: workflow-run-test
+
+on:
+  workflow_run:
+    workflows: ["build-test"]
+    types:
+      - requested
+      - completed
+
+jobs:
+  pending:
+    if: |
+      github.event.action == 'requested' &&
+      github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./
+        with:
+          message: 'Waiting for build finish'
+
+  test:
+    if: |
+      github.event.action == 'completed' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./
+        with:
+          message_on_success: 'Successfully finished'
+          message_on_failure: 'Failed'
+      - uses: juliangruber/sleep-action@v1
+        with:
+          time: 10s
