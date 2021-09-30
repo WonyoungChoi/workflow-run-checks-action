@@ -1,11 +1,25 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'workflow-run-status-action'
+description: 'Updates a commit status to the Pull Request that triggered the `workflow_run` event.'
+author: 'WonyoungChoi'
 inputs:
-  milliseconds: # change this
-    required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+  token:
+    description: 'GITHUB_TOKEN'
+    default: '${{ github.token }}'
+  context:
+    description: 'A string label to differentiate this status from the status of other systems.'
+    default: '${{ github.workflow }}'
+  message:
+    description: 'A short description of the status.'
+  message_on_pending:
+    description: 'Overrides `message` if job is pending.'
+  message_on_success:
+    description: 'Overrides `message` if job is successfully finished.'
+  message_on_failure:
+    description: 'Overrides `message` if job is failure.'
+  message_on_running:
+    description: 'Overrides `message` if job is running.'
 runs:
   using: 'node12'
   main: 'dist/index.js'
+  post: 'dist/index.js'
+  post-if: github.event.action == 'completed'
