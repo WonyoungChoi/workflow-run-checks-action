@@ -16,6 +16,17 @@ jobs:
       - uses: actions/github-script@v5
         with:
           script: |
+            const checks = await github.rest.checks.listForSuite({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              check_suite_id: context.payload.workflow_run.check_suite_id
+            });
+            checks.data.check_runs.forEach(check => {
+              console.log(`${check.name}, ${check.status}`)
+            });
+      - uses: actions/github-script@v5
+        with:
+          script: |
             github.rest.checks.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
