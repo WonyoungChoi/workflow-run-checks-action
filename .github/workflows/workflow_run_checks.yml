@@ -1,0 +1,43 @@
+name: workflow-run-checks
+
+on:
+  workflow_run:
+    workflows: ["build-test"]
+    types:
+      - requested
+
+
+jobs:
+  test-success:
+    if: ${{ github.event.workflow_run.event == 'pull_request' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/github-script@v5
+        with:
+          script: |
+            const checks = await github.rest.checks.listForSuite({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              check_suite_id: context.payload.workflow_run.check_suite_id
+            });
+            checks.data.check_runs.forEach(check => {
+              console.log(`${check.name}, ${check.status}`)
+            });
+      - uses: actions/github-script@v5
+        with:
+          script: |
+            const resp = await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: "My Check",
+              head_sha: context.payload.workflow_run.head_sha,
+              status: "queued",
+              output: {
+                title: "My Check",
+                summary: "This is checks API testing",
+                text: "blah blah blah..."
+              },
+            });
+
+            console.log(JSON.stringify(resp));
