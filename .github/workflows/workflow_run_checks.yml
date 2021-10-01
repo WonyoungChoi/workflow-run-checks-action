@@ -27,7 +27,7 @@ jobs:
       - uses: actions/github-script@v5
         with:
           script: |
-            github.rest.checks.create({
+            const resp = await github.rest.checks.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               name: "My Check",
@@ -39,3 +39,5 @@ jobs:
                 text: "blah blah blah..."
               },
             });
+
+            console.log(JSON.stringify(resp));
